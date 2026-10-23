@@ -321,3 +321,9 @@ and saves samples in `calibration/hid_latest.json`.
 
 Toolchain references: [PlatformIO Micro board](https://docs.platformio.org/en/latest/boards/atmelavr/micro.html),
 [Arduino Micro reset behavior](https://store.arduino.cc/products/arduino-micro).
+
+## License
+
+This project is released under the [MIT License](LICENSE): free to use, modify
+and redistribute, with attribution. The shareable package bundles AVRDUDE,
+which keeps its own license; see the license files inside the package.
