@@ -24,5 +24,5 @@ Final release.
   the adapter is wired with DB9 pins 1 to 4 on D4 to D7 in order.
 - Calibration stored in EEPROM with built-in defaults for a new board; `Recenter.bat` saves your
   stick's rest position, `scripts/calibrate.py` does a full calibration.
-- 1 kHz sampling, 250 Hz HID reports, 5 ms button debounce: about 3 ms for the axes and 8 ms for
-  the buttons from input to the PC.
+- Nominal 1 kHz sampling, 250 Hz HID report scheduling and 5 ms button debounce.
+  These firmware intervals are not a measured end-to-end input-latency result.

@@ -4,6 +4,10 @@ Detailed status, measurements, calibration workflow, protocol and verification
 notes for the Vectrex controller adapter. The short version is in the
 [README](../README.md); wiring is documented there as well.
 
+For the complete experimental history and its evidence limits, see
+[Design and validation](DESIGN_AND_VALIDATION.md). For the maintainer's file
+map, commands and release behavior, see [Project handover](HANDOVER.md).
+
 ## Current state
 
 The current firmware uses **75% of aftermarket #2's measured center-to-endpoint
@@ -37,7 +41,7 @@ zones. Windows showed constant neutral on both axes over a three-second check
 active dead zones without changing center or endpoints.
 
 The original three-stock average remains archived in the
-[controller study](calibration/controller_study/comparison.md); it is no longer
+[controller study](../calibration/controller_study/comparison.md); it is no longer
 the firmware default. Real-cartridge tests showed stock #2 and aftermarket #1
 both reach native X/Y -128 to +127. The user selected the 75% preset after
 observing similar early saturation positions on the real console and emulator.
@@ -45,12 +49,14 @@ This is a chosen response profile, not a directly measured voltage transfer
 function. A fixed profile cannot guarantee identical center or endpoints for
 every controller. For example, aftermarket #1's recorded X minimum 252 maps
 to about -98% with this exact preset; the other recorded mechanical extremes
-reach full output. See [threshold captures](calibration/controller_study/emulator_thresholds.md).
+reach full output. See [threshold captures](../calibration/controller_study/emulator_thresholds.md).
 
-Both builds compiled successfully; the updated HID image (9,262 bytes) was
-flashed and verified on 2026-10-11. The connected adapter reports its built-in
-STOCK profile active, with the above constants read back. The former EEPROM
-override is backed up. `calibration/active_profile.json` records the selection.
+Both builds compiled successfully; the updated HID image (9,262 bytes at
+that stage) was flashed and verified on 2026-10-11. The shared STOCK preset
+was activated and read back during range setup. Later recentering created
+the owner-specific EEPROM override described above. The final recorded
+selection is in `calibration/active_profile.json`; it is a historical record,
+not a fresh live query. Previous profiles were backed up.
 The emulator should use 0% dead zone and 100% endpoints. Previous Windows
 calibration overrides were backed up and cleared; no new Windows calibration
 is required. Restart applications that retain old controller scaling.
@@ -175,7 +181,7 @@ the stock profile and stays with the adapter across computers.
 ## Controller study and profile selection
 
 `measure_controller.py` records one stage without changing EEPROM. Use labels
-`stock_1`, `stock_2`, `stock_3`, or `aftermarket_1`. Stages are `center` (20 s),
+`stock_1`, `stock_2`, `stock_3`, `aftermarket_1`, or `aftermarket_2`. Stages are `center` (20 s),
 `left`, `right`, `up`, `down` (3–5 s each), `perimeter` (10 s), and `return_1`,
 `return_2`, `return_3` (5 s each). Keep the stick stationary during hold captures.
 For return trial 1 release after circles; trial 2 release after full left;
@@ -189,10 +195,14 @@ py scripts/measure_controller.py --label stock_1 --stage center --seconds 20
 py scripts/analyze_controller_study.py --write-defaults
 ```
 
-The analysis command regenerates `comparison.json`, `comparison.md`, and
-`firmware/common/stock_defaults.h` from all three completed stock records.
-Flash again after changing the header. The aftermarket data is compared
-separately, never used in the three-stock average.
+The analysis command regenerates the historical three-stock `comparison.json`
+and `comparison.md`. With `--write-defaults`, the selected
+`calibration/firmware_defaults.json` takes precedence when generating
+`firmware/common/stock_defaults.h`, so the 75% preset is retained. The
+three-stock average is only a fallback for header generation when no selected
+defaults file exists. Flash again after changing the header. Aftermarket
+data is compared separately, never used in the three-stock average; the
+selected release preset is explicitly based on aftermarket 2's reference.
 
 Select a profile on the connected adapter:
 
@@ -220,7 +230,9 @@ RAW,milliseconds,x_adc,y_adc,pressed_button_mask
 
 Bits 0..3 correspond to logical buttons 1..4 (D4/D5/D6/D7). Calibration firmware has CDC only.
 The HID build adds a gamepad collection with report ID 3: signed little-endian
-16-bit X and Y (-32767..32767), four button bits, four padding bits. It requests
+16-bit X and Y (-32767..32767), four button bits, four padding bits. The input
+ADC has 10-bit resolution; the wider HID field is a scaled representation.
+It requests
 reports every 4 ms (250 Hz). It uses Arduino's native HID implementation and
 Windows' built-in HID driver. USB product is `Vectrex USB Controller`; VID/PID
 remain the Arduino Micro's stable 2341:8037. CDC is for maintenance; games

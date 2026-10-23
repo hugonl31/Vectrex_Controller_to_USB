@@ -1,5 +1,10 @@
 # Controller study
 
+Historical three-stock-average analysis from 2026-10-11. The `stock_defaults`
+name in this report refers to that earlier candidate, not the selected 75%
+release preset. See [the selected defaults](../firmware_defaults.json) and
+[design history](../../docs/DESIGN_AND_VALIDATION.md).
+
 Equal-weight mean of 3 stock controllers; each center is mean of 4 resting-trial medians.
 
 All values are raw 10-bit ADC counts. Endpoints are robust measured limits; centers average four resting trials.

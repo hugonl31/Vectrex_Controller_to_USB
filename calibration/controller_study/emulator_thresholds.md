@@ -1,5 +1,11 @@
 # Emulator threshold captures, 2026-10-11
 
+Historical capture note. The owner subsequently selected the 75% response
+preset and confirmed that restarting the emulator resolved its stale
+calibration offset. This does not retrospectively establish these captures
+as exact native-console voltage thresholds. The complete interpretation is
+in [Design and validation](../../docs/DESIGN_AND_VALIDATION.md).
+
 Aftermarket #2 connected to adapter. EEPROM X162/501/863, Y156/503/869,
 zero dead zone/filter, inverted Y. User set emulator dead zone 0%, range 100%.
 User held the stick where each live axis first reached its displayed limit.
