@@ -96,7 +96,9 @@ source, third-party license/source files, and SHA256 integrity checks.
 `Recenter.bat` saves a released-stick center while preserving active endpoints
 and dead zones. `Restore-defaults.bat` backs up any calibration override and
 activates the compiled 75%-travel, ±20-count preset. Flashing preserves EEPROM.
-No personal calibration or study captures are shipped.
+No personal calibration or study captures are shipped. The package was
+rebuilt on 2026-10-23 for the v1.0.0 release after the adapter was rewired
+with DB9 pins 1-4 on D4-D7 in order and the button swap removed from the firmware.
 
 The packaged flasher was tested on the connected Arduino Micro: automatic
 1200-baud reset, changed bootloader COM port, programming and readback verify
