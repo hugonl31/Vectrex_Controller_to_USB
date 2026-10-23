@@ -50,8 +50,7 @@ DB9 7 -> VCC   positive controller supply (5 V)
 DB9 8 -> GND   controller ground
 DB9 9 -> GND   negative rail in this single-supply adapter arrangement
 
-Logical HID buttons 1/2/3/4 use D4/D6/D5/D7: the middle pair is swapped
-in this firmware as validated on the original adapter. Check button order
+Logical HID buttons 1/2/3/4 read D4/D5/D6/D7 in order. Check button order
 in joy.cpl on your controller/build; source is included if you need to change it.
 The breakout terminal marked GND may be DB9 pin 5: that is X, not ground.
 Before connecting A0/A1, verify DB9 5 and 6 remain within 0..VCC over full
