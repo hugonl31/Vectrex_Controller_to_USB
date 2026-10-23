@@ -53,7 +53,7 @@ you can recenter or fully calibrate it for your own controller at any time.
 
 ## Flashing
 
-**Easy way, Windows:** download the release package, extract it, connect the
+**Easy way, Windows:** download the package from the [latest release](../../releases/latest), extract it, connect the
 board and double-click `Flash.bat`. It resets the board, programs it and
 verifies. `Recenter.bat` saves your stick's rest position to the board.
 

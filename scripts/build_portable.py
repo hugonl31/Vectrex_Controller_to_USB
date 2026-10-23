@@ -9,7 +9,7 @@ import urllib.request
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = '1.0.0'
+VERSION = (ROOT/'VERSION').read_text().strip().lstrip('v')
 CACHE = ROOT/'portable/cache'
 OUTPUT = ROOT/'dist'/f'Vectrex-Controller-{VERSION}-Windows-x64'
 PACKAGES = Path(os.environ.get('PLATFORMIO_CORE_DIR', str(Path.home()/'.platformio')))/'packages'

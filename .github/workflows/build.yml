@@ -1,0 +1,64 @@
+# Builds the firmware with PlatformIO, builds and tests the Windows package, and publishes the package,
+# its checksum and the bare firmware image as the release named in VERSION (title = the version, marked
+# Latest). Every push to main replaces that release with the new build.
+name: build
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: PlatformIO and the script requirements
+        run: |
+          python -m pip install -q --upgrade pip
+          python -m pip install -q platformio==6.1.19
+          python -m pip install -q -r scripts/requirements.txt
+      - name: build the firmware (hid and calibration)
+        run: pio run -e hid -e calibration
+      - name: calibration software checks
+        run: python scripts/test_calibration.py
+      - name: build the Windows package
+        run: python scripts/build_portable.py
+      - name: test the package
+        run: python scripts/test_portable.py
+      - name: collect the release files
+        shell: pwsh
+        run: |
+          $ver = (Get-Content VERSION -TotalCount 1).Trim().TrimStart('v')
+          New-Item -ItemType Directory out | Out-Null
+          Copy-Item dist/*.zip, dist/*.sha256 out/
+          Copy-Item .pio/build/hid/firmware.hex "out/vectrex-controller-$ver.hex"
+          Get-ChildItem out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/*
+          if-no-files-found: error
+
+  release:                         # the build replaces the release named in VERSION (marked Latest)
+    needs: [windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: repo
+      - uses: actions/download-artifact@v4
+      - name: replace the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(head -n 1 repo/VERSION | tr -d ' \r')
+          { awk -v v="## $VER" '$0 == v {on=1; next} on && /^## / {exit} on' repo/RELEASE_NOTES.md
+            echo; echo "Built from ${GITHUB_SHA::7}."; } > notes.md
+          gh release delete "$VER" --cleanup-tag -y -R "$GITHUB_REPOSITORY" || true
+          gh release create "$VER" -R "$GITHUB_REPOSITORY" --latest --target "$GITHUB_SHA" \
+            --title "$VER" --notes-file notes.md windows/*

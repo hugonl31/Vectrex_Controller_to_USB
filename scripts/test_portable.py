@@ -8,13 +8,15 @@ import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-ZIP = ROOT/'dist/Vectrex-Controller-1.0.0-Windows-x64.zip'
+VERSION = (ROOT/'VERSION').read_text().strip().lstrip('v')
+NAME = f'Vectrex-Controller-{VERSION}-Windows-x64'
+ZIP = ROOT/'dist'/f'{NAME}.zip'
 
 
 class PortableTests(unittest.TestCase):
     def test_manifest_matches_every_shipped_file_and_no_personal_data(self):
         with zipfile.ZipFile(ZIP) as archive:
-            prefix = 'Vectrex-Controller-1.0.0-Windows-x64/'
+            prefix = NAME+'/'
             manifest = json.loads(archive.read(prefix+'manifest.json'))
             paths = {f['path'] for f in manifest['files']}
             self.assertEqual(set(archive.namelist()), {prefix+p for p in paths | {'manifest.json'}})
@@ -28,7 +30,7 @@ class PortableTests(unittest.TestCase):
 
     def test_hex_is_application_only_and_checksums_valid(self):
         with zipfile.ZipFile(ZIP) as archive:
-            lines=archive.read('Vectrex-Controller-1.0.0-Windows-x64/firmware/vectrex-controller.hex').decode().splitlines()
+            lines=archive.read(NAME+'/firmware/vectrex-controller.hex').decode().splitlines()
         high=0
         data_bytes=0
         eof=False
@@ -53,7 +55,7 @@ class PortableTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='Vectrex portable test ') as folder:
             with zipfile.ZipFile(ZIP) as archive:
                 archive.extractall(folder)
-            script=Path(folder)/'Vectrex-Controller-1.0.0-Windows-x64/Adapter.ps1'
+            script=Path(folder)/NAME/'Adapter.ps1'
             result=subprocess.run(['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(script),'-ValidateOnly'],capture_output=True,text=True)
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
             self.assertIn('No device was changed',result.stdout)

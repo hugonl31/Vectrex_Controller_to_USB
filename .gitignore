@@ -1,7 +1,7 @@
 .pio/
 .venv/
 __pycache__/
-portable/cache/
+portable/cache/*.zip
 dist/
 
 # not part of the adapter project / too large for GitHub
