@@ -5,7 +5,7 @@ It explains why the firmware reaches full output before the joystick's
 mechanical stops, how the controller study was conducted, and why the final
 preset combines a 75% range with a 20-count dead zone.
 
-Prepared for the v1.0.0 project handover on 2026-10-23. The hardware study and
+Prepared for the v1.0.0 release on 2026-10-23. The hardware study and
 response-profile decisions were made on 2026-10-11; portable packaging was
 tested on 2026-10-13. The final straight button wiring is documented in the
 2026-10-23 release. The authoritative implementation is in
@@ -532,7 +532,7 @@ version, eight 16-bit endpoint/center/dead-zone values, three flags and a
 CRC-16/CCITT over the preceding 24 bytes. The protocol and offsets are listed
 in [DEVELOPMENT.md](DEVELOPMENT.md#firmware-behavior-and-protocol).
 
-## 14. Packaging and handover
+## 14. Packaging and distribution
 
 The Windows x64 package was built so recipients need not install Python,
 PlatformIO or the Arduino IDE. It contains a prebuilt application HEX,
@@ -553,8 +553,9 @@ notices; personal EEPROM backups and measurement captures are excluded.
 Build-time checks validate ZIP contents against its manifest, Intel HEX
 checksums, application-only address bounds below the bootloader, and
 PowerShell validation from a path containing spaces. Those checks do not
-flash a physical device in GitHub Actions. See the operational
-[handover](HANDOVER.md) for release commands and CI behavior.
+flash a physical device in GitHub Actions. The release commands and the
+continuous-integration behavior are described in
+[DEVELOPMENT.md](DEVELOPMENT.md#release-workflow).
 
 ## 15. Evidence, confidence and remaining questions
 
@@ -580,6 +581,21 @@ BIOS-value logging, controlled stick-position fixtures, a clean emulator
 transfer sweep after calibration reset/restart, and repeated releases across
 more controllers and temperatures. These could refine the preset without
 changing the basic adapter architecture.
+
+### Where each record lives
+
+| Question | Record |
+| --- | --- |
+| What was measured on the five controllers? | [Study table](../calibration/controller_study/comparison.md) and the five adjacent JSON files |
+| Which selected profile is compiled now? | [Defaults source](../calibration/firmware_defaults.json) and [generated header](../firmware/common/stock_defaults.h) |
+| Did real controllers reach full native output? | [Native-console validation](../calibration/controller_study/native_console_validation.md) |
+| What did the emulator limit-position experiment capture? | [Threshold data](../calibration/controller_study/emulator_thresholds.json) |
+| Did ADC, HID and Windows agree at full travel? | [Endpoint verification](../calibration/transfer_verification.json) |
+| Why were the initial host readings misleading? | [Windows mapping notes](../calibration/windows_mapping_notes.md) |
+| What was the old Windows calibration? | [Backed-up values](../calibration/windows_calibration_before_reset.json) |
+| Did all four buttons and both axes work initially? | [Motion/button capture](../calibration/hid_motion_buttons.json) |
+| Was the chosen dead zone quiet? | [689-sample neutral capture](../calibration/deadzone20_center_verified.json) |
+| What personal profile was last recorded? | [Active-profile record](../calibration/active_profile.json), with its timestamp |
 
 ## Suggested wording for a GitHub publication
 

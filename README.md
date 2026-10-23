@@ -91,8 +91,7 @@ EEPROM layout, the Windows release package build, and the verification steps.
 For the detailed design history, read
 [Design and validation](docs/DESIGN_AND_VALIDATION.md): the five-controller
 measurements, real-console tests, and how we selected the 75% range and
-±20-count dead zone. [Project handover](docs/HANDOVER.md) covers the repository,
-maintenance commands, evidence and release workflow.
+±20-count dead zone.
 
 ## License
 

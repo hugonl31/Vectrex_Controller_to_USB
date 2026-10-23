@@ -12,3 +12,7 @@ portable/*.mp4
 Robot_Arena/
 pitrex-test/
 cartridge-test/
+
+# local maintainer handover notes: machine paths, ports and session history
+docs/HANDOVER.md
+docs/HANDOVER_GITHUB.md

@@ -5,8 +5,7 @@ notes for the Vectrex controller adapter. The short version is in the
 [README](../README.md); wiring is documented there as well.
 
 For the complete experimental history and its evidence limits, see
-[Design and validation](DESIGN_AND_VALIDATION.md). For the maintainer's file
-map, commands and release behavior, see [Project handover](HANDOVER.md).
+[Design and validation](DESIGN_AND_VALIDATION.md).
 
 ## Current state
 
@@ -87,6 +86,43 @@ and `hid_motion_buttons.json` in that directory. USB replug, another USB port,
 Windows reboot and extended button-cycle testing remain manual checks.
 
 
+## Repository map
+
+| Path | Responsibility |
+| --- | --- |
+| `platformio.ini` | Pinned AVR platform, Micro target, HID/diagnostic environments |
+| `firmware/common/adapter.h` | Sampling, buttons, HID descriptor, axis mapping, serial commands, EEPROM |
+| `firmware/common/stock_defaults.h` | Generated initializer used by both firmware builds |
+| `firmware/hid_firmware/main.cpp` | Enables the HID build |
+| `firmware/calibration_firmware/main.cpp` | Enables the serial-only diagnostic build |
+| `calibration/firmware_defaults.json` | Selected defaults, reference endpoints and the 0.75 fraction |
+| `scripts/write_firmware_defaults.py` | Validates the fraction calculation and generates the header |
+| `scripts/calibrate.py` | Guided full mechanical-range calibration and capture archive |
+| `scripts/measure_controller.py` | Records individual study stages without changing EEPROM |
+| `scripts/analyze_controller_study.py` | Historical three-stock comparison; respects the selected release defaults when generating the header |
+| `scripts/select_profile.py` | Stock/default selection, measured profiles, recentering, dead-zone changes |
+| `scripts/monitor_hid.py` | Windows joystick API capture |
+| `scripts/monitor_transfer.py` | Combined raw ADC, direct HID and Windows capture for zero-dead-zone diagnostics |
+| `scripts/build_portable.py` | Offline-use Windows ZIP, source, notices and manifest |
+| `scripts/test_calibration.py` | Calibration-estimator checks |
+| `scripts/test_portable.py` | Release archive, HEX boundary/checksum and Windows validation checks |
+| `scripts/build_publication_figures.py` | Rebuilds the two publication figures from stored data and defaults |
+| `portable/Adapter.ps1` | Windows flash and settings helper |
+| `portable/*.bat` | User-facing entry points |
+| `calibration/controller_study/` | Five-controller raw captures, summaries and historical interpretations |
+| `calibration/*.json` | Initial verification, profile history and host-mapping evidence |
+| `VERSION`, `RELEASE_NOTES.md` | Release identity and published notes |
+| `.github/workflows/build.yml` | Build, checks, artifact collection and release replacement |
+
+The PiTrex and real-cartridge diagnostic projects used during the study are
+not part of this repository and are not dependencies of the adapter. Their
+findings are preserved in the notes under `calibration/controller_study/`.
+
+Several older JSON records use present-tense wording such as "current
+profile". Read them as snapshots of their recorded dates, not as replacements
+for `calibration/firmware_defaults.json` or a fresh `INFO`/`GET` query. Some
+raw captures also carry absolute local paths in their provenance fields.
+
 ## Build and flash (PowerShell, project directory)
 
 ### Shareable Windows package
@@ -115,9 +151,37 @@ been physically tested; compatible clone/manual-reset support is documented.
 Rebuild the package with `python scripts/build_portable.py`; test the ZIP with
 `python scripts/test_portable.py`. Maintainer builds need PlatformIO/Python
 and the pinned AVRDUDE downloads and license texts under `portable/cache`.
+The builder downloads the pinned AVRDUDE 8.2 archives and verifies their
+SHA256 hashes, requires the tracked `LGPL-2.1.txt` and `AVR-LIBC-LICENSE.txt`
+in that folder, and zips the Arduino AVR framework from the PlatformIO
+packages folder, so a `pio run` must have happened first (the script does
+this itself). Inspect the generated ZIP, not only the staging directory:
+local helper runs can leave private calibration backups there, and those
+must never reach a distributable archive.
+
+The full source build and check sequence is:
+
+```powershell
+py -m pip install platformio==6.1.19
+py -m pip install -r scripts/requirements.txt
+pio run -e hid -e calibration
+py scripts/test_calibration.py
+py scripts/build_portable.py
+py scripts/test_portable.py
+```
+
+The two figures in `docs/images/` are rebuilt from the archived study data and
+the selected defaults. matplotlib is deliberately not a firmware or runtime
+dependency:
+
+```powershell
+py -m pip install matplotlib
+py scripts/build_publication_figures.py
+```
 
 PlatformIO Core 6.1.19 was already installed. The project pins Atmel AVR 5.1.0;
 PlatformIO installs its AVR compiler, Arduino core, and avrdude automatically.
+The observed packages are Arduino AVR framework 5.2.0 and AVR GCC 7.3.0.
 Python plus pyserial is used for optional measurement and calibration. For a
 new adapter, build/flash HID directly to use the built-in stock defaults:
 
@@ -140,6 +204,18 @@ port. If automatic reset fails, start upload and press the Arduino Micro reset
 button as it waits. For a Pro Micro clone, briefly connect RST to GND; many
 clones use two quick resets to keep the bootloader active. List ports with
 `pio device list`, then retry using the bootloader port if needed.
+
+The portable equivalent is to extract the release ZIP and run `Flash.bat`;
+`Flash.bat -Port COM7 -Bootloader` uses an already active bootloader port.
+Flashing goes through the bootloader, does not program fuses or replace the
+bootloader, and keeps AVRDUDE verification enabled. Programming a bare chip
+or installing a different bootloader is outside this workflow.
+
+Use this project's PlatformIO `hid` environment rather than a third-party
+board definition. Uploading with the SparkFun `promicro` definition from the
+Arduino IDE changes the board's USB identity to SparkFun's VID 1B4F; the
+`hid` environment restores the Arduino Micro identity 2341:8037 that the
+package and these notes assume.
 
 ## Calibrate with the actual controller
 
@@ -207,17 +283,38 @@ selected release preset is explicitly based on aftermarket 2's reference.
 Select a profile on the connected adapter:
 
 ```powershell
+# Activate the compiled 75%-travel, ±20-count defaults, replacing an override:
 py scripts/select_profile.py --stock
+
+# Change only the center, retaining endpoints and dead zones:
+py scripts/select_profile.py --recenter
+
+# Change both dead-zone radii, retaining center and endpoints:
+py scripts/select_profile.py --deadzone 20
+
+# Write a named study controller's own measured mechanical-range profile:
 py scripts/select_profile.py --controller aftermarket_1
 ```
 
-Run only the command for the desired profile. Both commands back up the
-current active values, apply the new choice, and verify the firmware readback.
+Run only the command for the desired profile. Each backs up the
+current active values, applies the new choice, and verifies the firmware readback.
 `--stock` invalidates the saved EEPROM override so built-in stock defaults
 are used on every boot. `--controller` writes the named controller's measured
 profile to EEPROM, using the average of its resting trials and a dead zone
 that covers its measured return variation. These selections persist across
 USB replug and can be changed later without recompiling.
+
+Named individual profiles and a full calibration use measured mechanical
+endpoints, so they replace the early-saturation feel; for the shared 75%
+response with a better center, use `--recenter` rather than a new full
+calibration. `STOCK` is the firmware command name for the built-in defaults;
+it no longer means the historical three-stock arithmetic mean.
+
+`monitor_transfer.py` requires zero firmware dead zones and no filter, and
+intentionally refuses the normal ±20 preset because its expected-mapping
+calculation assumes the diagnostic linear profile. Save the active profile
+before changing dead zones to run it. `monitor_hid.py` inspects the normally
+configured Windows output directly and needs no profile change.
 
 ## Firmware behavior and protocol
 
@@ -275,6 +372,27 @@ EEPROM address 0 contains a packed 26-byte little-endian structure:
 Invalid structure, bounds, flags, or CRC selects built-in stock defaults. Uploading
 through Caterina preserves EEPROM; writing a new calibration replaces it.
 
+## Invariants to preserve when changing the firmware
+
+1. Full output is reached at 75% of a broad-travel reference's **ADC excursion
+   from center**, not at 75% of the absolute endpoint code and not as a 75%
+   ceiling on the HID value.
+2. The endpoints are asymmetric around the reference center and rounded half
+   up. They are fixed shared values, not per-controller results.
+3. A ±20 ADC-count firmware dead zone is followed by continuous linear scaling
+   to those endpoints. No additional emulator dead zone is intended.
+4. Center is never estimated at boot. Recentering is explicit, so holding the
+   stick while the adapter is connected cannot corrupt the reference.
+5. Raw serial telemetry stays unfiltered and independent of output calibration.
+6. EEPROM writes are validated and read back; the selection tools keep backups.
+7. Buttons 1 to 4 read D4/D5/D6/D7 directly. Development captures from before
+   the 2026-10-23 rewiring describe a software swap of the middle two buttons;
+   do not reintroduce it from those notes.
+
+The shared center is not universal. A controller resting outside its ±20-count
+neutral band needs recentering. A dead zone masks limited variation around a
+suitable center; it does not establish the correct center by itself.
+
 ## Verification
 
 ```powershell
@@ -304,6 +422,41 @@ py scripts/monitor_hid.py --seconds 20
 This uses Microsoft's [joyGetPosEx API](https://learn.microsoft.com/en-us/windows/win32/api/joystickapi/nf-joystickapi-joygetposex)
 and saves samples in `calibration/hid_latest.json`.
 
+### Acceptance checks for a new build
+
+1. Verify the wiring against the DB9 pin numbers and confirm the analog
+   voltages stay inside 0..VCC over full travel before connecting the ADC pins.
+2. Flash and require a successful AVRDUDE readback verification.
+3. In `joy.cpl`, confirm two axes and four buttons in the correct order.
+4. Release the stick and recenter if its resting point is outside the neutral band.
+5. Move slowly in all directions: check sign, full output before the mechanical
+   stops where expected, monotonic movement outside the dead zone, and clipping.
+6. Press each button repeatedly, hold combinations, and move while pressing.
+7. Reconnect USB and verify the saved settings persist. Test the intended OS
+   and emulator, closing and reopening it after any host calibration reset.
+8. In the emulator use 0% additional dead zone and 100% endpoints, and compare
+   the feel in an actual game rather than only on its input screen.
+
+These are suggested checks. The archived records establish a subset of them on
+the prototype; they are not a pass for every future build, OS or controller.
+
 Toolchain references: [PlatformIO Micro board](https://docs.platformio.org/en/latest/boards/atmelavr/micro.html),
 [Arduino Micro reset behavior](https://store.arduino.cc/products/arduino-micro).
 
+## Release workflow
+
+`.github/workflows/build.yml` runs on every push to `main` and on manual
+dispatch. It builds both firmware environments on Windows, runs the
+calibration checks, builds and tests the Windows package, and collects the
+ZIP, its checksum and the bare HEX.
+
+The release job then **deletes and recreates the GitHub release and tag named
+in `VERSION`** and marks it Latest. It is not restricted to newly pushed
+version tags, so a documentation-only push also replaces the current release
+with a fresh build of the same firmware. For a new version, bump `VERSION` and
+add a matching `## vX.Y.Z` section to `RELEASE_NOTES.md`, which the workflow
+publishes as the release notes. The previous version's release disappears
+unless the workflow is changed to keep it.
+
+Before pushing, check `VERSION`, review its notes section, and confirm that
+replacing the current release is intended.
