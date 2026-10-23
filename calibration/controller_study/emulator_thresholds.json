@@ -1,0 +1,64 @@
+{
+  "status": "emulator_threshold_capture_complete",
+  "directions": {
+    "left": {
+      "adc_median": 244,
+      "adc_range": [
+        244,
+        246
+      ],
+      "hid_median": -24841,
+      "hid_magnitude_fraction": 0.7581102938932462,
+      "source": "emulator_left_threshold.json"
+    },
+    "right": {
+      "adc_median": 773,
+      "adc_range": [
+        773,
+        773
+      ],
+      "hid_median": 24620,
+      "hid_magnitude_fraction": 0.7513657032990508,
+      "source": "emulator_right_threshold.json"
+    },
+    "up": {
+      "adc_median": 778,
+      "adc_range": [
+        777,
+        778
+      ],
+      "hid_median": -24620,
+      "hid_magnitude_fraction": 0.7513657032990508,
+      "source": "emulator_up_threshold.json"
+    },
+    "down": {
+      "adc_median": 244,
+      "adc_range": [
+        244,
+        244
+      ],
+      "hid_median": 24457,
+      "hid_magnitude_fraction": 0.7463911862544633,
+      "source": "emulator_down_threshold.json"
+    }
+  },
+  "aftermarket_1_mechanical_adc": {
+    "filter": 0,
+    "x_min": 252,
+    "x_center": 518,
+    "x_max": 777,
+    "x_deadzone": 3,
+    "invert_x": 0,
+    "y_min": 243,
+    "y_center": 509,
+    "y_max": 778,
+    "y_deadzone": 3,
+    "invert_y": 1
+  },
+  "console_comparison": "User confirmed real cartridge reaches +127 and PiTrex +60 at approximately the same physical stick position as emulator saturation. No simultaneous voltage or ADC measurement on physical console.",
+  "limitations": [
+    "Only RIGHT live screen value (+126) was explicitly reported; other directions were positioned by user according to live-limit instructions without supplying displayed numeric values.",
+    "Old Windows axis calibration endpoints were about +/-24500 HID counts, close to captured thresholds. Extra emulator scaling is unresolved; these are not independently measured native console voltage thresholds."
+  ],
+  "arduino_profile_changed_by_threshold_capture": false
+}

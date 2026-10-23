@@ -1,0 +1,19 @@
+{
+  "name": "aftermarket_2_75_percent",
+  "method": "75% of each center-to-endpoint distance, rounded to nearest ADC count (half up)",
+  "reference": {
+    "controller": "aftermarket_2",
+    "x_min": 162, "x_center": 501, "x_max": 863,
+    "y_min": 156, "y_center": 503, "y_max": 869,
+    "center_source": "Released capture in aftermarket_2_measurement active profile, 2026-10-11"
+  },
+  "fraction": 0.75,
+  "calibration": {
+    "x_min": 247, "x_center": 501, "x_max": 773,
+    "y_min": 243, "y_center": 503, "y_max": 778,
+    "x_deadzone": 20, "y_deadzone": 20,
+    "invert_x": 0, "invert_y": 1, "filter": 0
+  },
+  "purpose": "Shared early saturation for Vectrex emulator development and testing",
+  "validation_scope": "User-selected 75% mapping, not a direct electrical measurement of console saturation"
+}

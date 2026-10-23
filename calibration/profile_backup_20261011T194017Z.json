@@ -1,0 +1,5 @@
+{
+  "utc": "2026-10-11T19:40:17.209513+00:00",
+  "identity": "INFO,VECTREX,1,HID,CALIBRATED,EEPROM",
+  "calibration_command": "CAL,247,520,773,243,516,778,0,0,0,1,0"
+}

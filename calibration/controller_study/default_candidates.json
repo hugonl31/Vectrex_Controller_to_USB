@@ -1,0 +1,58 @@
+{
+  "status": "proposed_only",
+  "profiles": {
+    "average": {
+      "label": "Three-stock average (built in)",
+      "values": {
+        "filter": 0,
+        "x_min": 171,
+        "x_max": 837,
+        "x_center": 513,
+        "x_deadzone": 21,
+        "invert_x": 0,
+        "y_min": 169,
+        "y_max": 838,
+        "y_center": 524,
+        "y_deadzone": 20,
+        "invert_y": 1
+      }
+    },
+    "healthy": {
+      "label": "Stock #1 + #2 saturation candidate",
+      "values": {
+        "filter": 0,
+        "x_min": 172,
+        "x_max": 843,
+        "x_center": 514,
+        "x_deadzone": 20,
+        "invert_x": 0,
+        "y_min": 180,
+        "y_max": 836,
+        "y_center": 528,
+        "y_deadzone": 4,
+        "invert_y": 1
+      }
+    },
+    "broad": {
+      "label": "Stock #1 + #2 + both aftermarket saturation",
+      "values": {
+        "filter": 0,
+        "x_min": 255,
+        "x_max": 775,
+        "x_center": 513,
+        "x_deadzone": 22,
+        "invert_x": 0,
+        "y_min": 246,
+        "y_max": 773,
+        "y_center": 520,
+        "y_deadzone": 25,
+        "invert_y": 1
+      }
+    },
+    "individual": {
+      "label": "Individual measured calibration",
+      "values": null
+    }
+  },
+  "note": "Candidates use inward saturation at stable held endpoints. Stock #3 is suspect, not proven faulty. No finite sample guarantees every future controller. Individual calibration stays optional."
+}

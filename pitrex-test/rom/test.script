@@ -1,0 +1,30 @@
+run 650
+joy 0 0
+btn 1
+run 2
+btn 0
+run 5
+joy -128 0
+run 8
+joy 127 0
+run 8
+joy 0 127
+run 8
+joy 0 -128
+run 8
+joy 0 0
+run 8
+btn 2
+run 2
+btn 0
+run 3
+btn 8
+run 2
+btn 0
+run 3
+peek C880 10
+joy -64 64
+run 8
+peek C880 10
+shot joytest.png
+stats

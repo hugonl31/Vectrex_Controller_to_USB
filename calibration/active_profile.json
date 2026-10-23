@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-11T19:40:17.298171+00:00",
+  "profile": "shared_endpoints_custom_center_deadzone",
+  "identity": "INFO,VECTREX,1,HID,CALIBRATED,EEPROM",
+  "calibration": {
+    "x_min": 247,
+    "x_center": 520,
+    "x_max": 773,
+    "y_min": 243,
+    "y_center": 516,
+    "y_max": 778,
+    "x_deadzone": 20,
+    "y_deadzone": 20,
+    "invert_x": 0,
+    "invert_y": 1,
+    "filter": 0
+  },
+  "status": "readback_verified",
+  "previous_profile_backup": "G:\\AI\\Vectrex_Controller_HID\\calibration\\profile_backup_20261011T194017Z.json"
+}

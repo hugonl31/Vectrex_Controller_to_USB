@@ -1,0 +1,48 @@
+{
+  "status": "all_four_endpoints_verified",
+  "endpoints": {
+    "left": {
+      "adc": 162,
+      "hid": -32767,
+      "windows": 0,
+      "endpoint_samples": 47,
+      "source": "transfer_range_verified.json"
+    },
+    "right": {
+      "adc": 863,
+      "hid": 32767,
+      "windows": 65535,
+      "endpoint_samples": 266,
+      "source": "transfer_right.json"
+    },
+    "up": {
+      "adc": 869,
+      "hid": -32767,
+      "windows": 0,
+      "endpoint_samples": 267,
+      "source": "transfer_up.json"
+    },
+    "down": {
+      "adc": 156,
+      "hid": 32767,
+      "windows": 65535,
+      "endpoint_samples": 267,
+      "source": "transfer_down.json"
+    }
+  },
+  "calibration": {
+    "x_min": 162,
+    "x_center": 501,
+    "x_max": 863,
+    "y_min": 156,
+    "y_center": 503,
+    "y_max": 869,
+    "x_deadzone": 0,
+    "y_deadzone": 0,
+    "invert_x": 0,
+    "invert_y": 1,
+    "filter": 0
+  },
+  "windows_calibration": "old axis overrides backed up and cleared; no new Windows calibration needed",
+  "native_saturation_voltage": "not established by USB/emulator endpoint tests"
+}

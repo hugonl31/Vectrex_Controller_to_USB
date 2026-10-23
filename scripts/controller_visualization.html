@@ -1,0 +1,269 @@
+<div id="vectrex-controller-comparison">
+  <style>
+    #vectrex-controller-comparison { color: var(--foreground); position: relative; }
+    #vectrex-controller-comparison .panels { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+    #vectrex-controller-comparison .plot { min-width: 0; }
+    #vectrex-controller-comparison .plot svg { display: block; width: 100%; overflow: visible; }
+    #vectrex-controller-comparison .plot text { fill: var(--foreground); font-size: 12px; font-weight: 400; }
+    #vectrex-controller-comparison .plot .domain, #vectrex-controller-comparison .plot .tick line { stroke: var(--border); }
+    #vectrex-controller-comparison .plot .frame, #vectrex-controller-comparison .plot .grid { stroke: var(--border); fill: none; }
+    #vectrex-controller-comparison .plot .reference { stroke: var(--foreground); stroke-width: 1; opacity: .5; }
+    #vectrex-controller-comparison .plot .band { fill: var(--foreground); opacity: .065; }
+    #vectrex-controller-comparison .swatch { display: inline-block; width: 12px; height: 12px; margin-right: 4px; }
+    #vectrex-controller-comparison .section { margin-top: 24px; }
+    #vectrex-controller-comparison .legend { display:flex; flex-wrap:wrap; gap:12px; margin:8px 0; }
+    #vectrex-controller-comparison .tooltip { position:absolute; pointer-events:none; max-width:280px; z-index:5; }
+    #vectrex-controller-comparison .detail { margin: 8px 0; }
+    @media(max-width:650px) { #vectrex-controller-comparison .panels { grid-template-columns: 1fr; gap: 10px; } }
+  </style>
+  <h2>Vectrex controller measurements</h2>
+  <div class="legend text-small"><span>━ Robust travel limits</span><span>● Average resting center</span><span>◆ Held directional endpoint</span><span>Shading: selected default dead zone</span></div>
+  <div class="panels">
+    <div class="plot" data-panel="range-x"><h3>X travel</h3></div>
+    <div class="plot" data-panel="range-y"><h3>Y travel</h3></div>
+  </div>
+  <div class="section">
+    <h3>Return to center · magnified</h3>
+    <div class="legend text-small"><span>○ Initial rest</span><span>□ After circles</span><span>△ After left</span><span>◇ After right, then up</span></div>
+    <div class="panels">
+      <div class="plot" data-panel="center-x"></div>
+      <div class="plot" data-panel="center-y"></div>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Full directional output · firmware prediction</h3>
+    <div class="viz-controls">
+      <label class="form-label">Default profile
+        <select class="form-select" id="vectrex-profile">
+          <option value="average">Three-stock average (built in)</option>
+          <option value="healthy">Stock #1 + #2 saturation candidate</option>
+          <option value="broad">Stock #1 + #2 + both aftermarket saturation</option>
+          <option value="individual">Individual measured calibration</option>
+        </select>
+      </label>
+    </div>
+    <div class="detail text-small tabular-nums" id="vectrex-profile-values" aria-live="polite"></div>
+    <div class="panels">
+      <div class="plot" data-panel="output-x"><h3>X · left and right</h3></div>
+      <div class="plot" data-panel="output-y"><h3>Y · up and down</h3></div>
+    </div>
+  </div>
+  <div class="section">
+    <h3>Raw recordings</h3>
+    <div class="viz-controls">
+      <label class="form-label">Controller
+        <select class="form-select" id="vectrex-controller"><option value="0">Stock #1</option><option value="1">Stock #2</option><option value="2">Stock #3</option><option value="3">Aftermarket #1</option><option value="4">Aftermarket #2</option></select>
+      </label>
+      <label class="form-label">Stationary hold
+        <select class="form-select" id="vectrex-hold"><option value="left">Left</option><option value="right">Right</option><option value="up">Up</option><option value="down">Down</option></select>
+      </label>
+    </div>
+    <div class="detail text-small tabular-nums" id="vectrex-hold-values" aria-live="polite"></div>
+    <div class="panels">
+      <div class="plot" data-panel="hold-x"><h3>X variation during hold</h3></div>
+      <div class="plot" data-panel="hold-y"><h3>Y variation during hold</h3></div>
+    </div>
+    <div class="plot section" data-panel="perimeter"><h3>Measured perimeter path · selected controller</h3></div>
+  </div>
+  <div class="tooltip" role="tooltip" hidden></div>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+  <script>
+  (() => {
+    const root=document.getElementById('vectrex-controller-comparison');
+    const data=__CONTROLLER_DATA__;
+    const labels=data.controllers.map(c=>c.label);
+    const colors=[1,2,3,4,5].map(n=>`var(--viz-series-${n})`);
+    const stageLabels={center:'Initial rest',return_1:'After circles',return_2:'After left',return_3:'After right, then up'};
+    const tooltip=root.querySelector('.tooltip');
+    const profileControl=root.querySelector('#vectrex-profile');
+    const controllerControl=root.querySelector('#vectrex-controller');
+    const holdControl=root.querySelector('#vectrex-hold');
+    const panels={};
+    root.querySelectorAll('[data-panel]').forEach(el=>panels[el.dataset.panel]=el);
+    let state={profile:'average',controller:2,hold:'left'};
+    function applyState(next) {
+      if(next && data.profiles[next.profile]) state.profile=next.profile;
+      if(next && Number.isInteger(next.controller) && next.controller>=0 && next.controller<data.controllers.length) state.controller=next.controller;
+      if(next && ['left','right','up','down'].includes(next.hold)) state.hold=next.hold;
+      profileControl.value=state.profile;controllerControl.value=state.controller;holdControl.value=state.hold;
+    }
+    applyState(window.openai?.widgetState?.privateContent);
+    function save() {
+      window.openai?.setWidgetState({modelContent:{defaultProfile:data.profiles[state.profile].label,
+        inspectedController:labels[state.controller],hold:state.hold},privateContent:{...state}})?.catch(()=>{});
+    }
+    function showTip(event, text) {
+      tooltip.textContent=text;tooltip.hidden=false;
+      const b=root.getBoundingClientRect();
+      const width=tooltip.getBoundingClientRect().width;
+      tooltip.style.left=Math.max(0,Math.min(event.clientX-b.left+12,b.width-width-4))+'px';
+      tooltip.style.top=Math.max(0,event.clientY-b.top+12)+'px';
+    }
+    function hideTip(){tooltip.hidden=true;}
+    function hit(g,x,y,text) {
+      g.append('circle').attr('cx',x).attr('cy',y).attr('r',17).attr('fill','transparent')
+        .attr('data-chart-hit','').on('pointerenter',e=>showTip(e,text)).on('pointermove',e=>showTip(e,text))
+        .on('pointerleave',hideTip).on('click',e=>showTip(e,text));
+    }
+    function extent(values,pad=.04) {
+      const e=d3.extent(values);const gap=Math.max((e[1]-e[0])*pad,1);return[e[0]-gap,e[1]+gap];
+    }
+    function setup(name,height,xDomain,yDomain,xLabel,yLabel,categorical=false) {
+      const el=panels[name],w=Math.max(280,el.getBoundingClientRect().width),h=height;
+      let svg=d3.select(el).select('svg');
+      if(svg.empty())svg=d3.select(el).append('svg');
+      svg.selectAll('*').remove();svg.attr('viewBox',`0 0 ${w} ${h}`).attr('height',h).attr('role','img')
+        .attr('aria-label',`${xLabel}; ${yLabel}`);
+      svg.append('title').text(`${xLabel}; ${yLabel}`);
+      const m={left:82,right:18,top:26,bottom:45};
+      const x=d3.scaleLinear().domain(xDomain).range([m.left+5,w-m.right-5]);
+      const y=categorical?d3.scalePoint().domain(yDomain).range([m.top+26,h-m.bottom-26]):
+        d3.scaleLinear().domain(yDomain).range([h-m.bottom-5,m.top+5]);
+      svg.append('rect').attr('data-chart-frame','').attr('class','frame').attr('x',m.left).attr('y',m.top)
+        .attr('width',w-m.left-m.right).attr('height',h-m.top-m.bottom);
+      const ticks=w<430?4:6;
+      svg.append('g').attr('transform',`translate(0,${h-m.bottom})`).call(d3.axisBottom(x).ticks(ticks).tickSizeOuter(0));
+      svg.append('g').attr('transform',`translate(${m.left},0)`).call(categorical?d3.axisLeft(y).tickSize(0):d3.axisLeft(y).ticks(4).tickSizeOuter(0));
+      svg.append('text').attr('class','axis-title').attr('data-axis','x').attr('x',(m.left+w-m.right)/2)
+        .attr('y',h-6).attr('text-anchor','middle').text(xLabel);
+      svg.append('text').attr('class','axis-title').attr('data-axis','y').attr('x',8).attr('y',14).text(yLabel);
+      const clipId=`vectrex-clip-${name}`;
+      svg.append('defs').append('clipPath').attr('id',clipId).append('rect').attr('x',m.left).attr('y',m.top)
+        .attr('width',w-m.left-m.right).attr('height',h-m.top-m.bottom);
+      const g=svg.append('g').attr('clip-path',`url(#${clipId})`);
+      return{svg,g,x,y,w,h,m};
+    }
+    function profile(i) {return state.profile==='individual'?data.controllers[i].profile:data.profiles[state.profile].values;}
+    function reference(chart,axis) {
+      if(state.profile==='individual')return;
+      const p=profile(0),a=chart.x(p[axis+'_center']-p[axis+'_deadzone']),b=chart.x(p[axis+'_center']+p[axis+'_deadzone']);
+      chart.g.append('rect').attr('class','band').attr('x',a).attr('y',chart.m.top).attr('width',b-a).attr('height',chart.h-chart.m.top-chart.m.bottom);
+      chart.g.append('line').attr('class','reference').attr('x1',chart.x(p[axis+'_center'])).attr('x2',chart.x(p[axis+'_center']))
+        .attr('y1',chart.m.top).attr('y2',chart.h-chart.m.bottom);
+    }
+    function fmt(v){return Number.isInteger(v)?String(v):v.toFixed(2);}
+    function range(axis) {
+      const domain=extent(data.controllers.flatMap(c=>[c.axes[axis].min,c.axes[axis].max]));
+      const q=setup(`range-${axis}`,335,domain,labels,`${axis.toUpperCase()} (ADC counts)`,'Controller',true);
+      reference(q,axis);
+      data.controllers.forEach((c,i)=>{
+        const a=c.axes[axis],y=q.y(labels[i]);
+        q.g.append('rect').attr('x',q.x(a.min)).attr('y',y-3).attr('width',q.x(a.max)-q.x(a.min)).attr('height',6).attr('fill',colors[i]).attr('opacity',.65);
+        q.g.append('circle').attr('cx',q.x(a.center)).attr('cy',y).attr('r',5).attr('fill',colors[i]);
+        for(const end of ['min','max']) {
+          q.g.append('text').attr('x',q.x(a[end])).attr('y',y-12).attr('text-anchor',end==='min'?'start':'end').text(a[end]);
+          hit(q.g,q.x(a[end]),y,`${c.label} ${axis.toUpperCase()} ${end}: ${a[end]} ADC counts (robust perimeter + holds)`);
+        }
+        q.g.append('text').attr('x',q.x(a.center)).attr('y',y+23).attr('text-anchor','middle').text(fmt(a.center));
+        hit(q.g,q.x(a.center),y,`${c.label} ${axis.toUpperCase()} average resting center: ${fmt(a.center)}; trial span ${a.span} ADC counts`);
+        Object.entries(a.holds).forEach(([stage,value])=>{
+          const pos=q.x(value);
+          q.g.append('path').attr('d',d3.symbol().type(d3.symbolDiamond).size(45)()).attr('transform',`translate(${pos},${y})`)
+            .attr('fill','var(--background)').attr('stroke',colors[i]).attr('stroke-width',1.5);
+          hit(q.g,pos,y,`${c.label} held ${stage}: ${fmt(value)} ${axis.toUpperCase()} ADC counts`);
+        });
+      });
+    }
+    function centers(axis) {
+      let values=data.controllers.flatMap(c=>c.axes[axis].trials.flatMap(t=>[t.p005,t.p995]));
+      if(state.profile!=='individual'){const p=profile(0);values.push(p[axis+'_center']-p[axis+'_deadzone'],p[axis+'_center']+p[axis+'_deadzone']);}
+      const q=setup(`center-${axis}`,285,extent(values,.1),labels,`${axis.toUpperCase()} rest (ADC counts)`,'Controller',true);
+      reference(q,axis);
+      const shapes=[d3.symbolCircle,d3.symbolSquare,d3.symbolTriangle,d3.symbolDiamond];
+      data.controllers.forEach((c,i)=>{
+        const a=c.axes[axis],cy=q.y(labels[i]);
+        a.trials.forEach((t,j)=>{
+          const y=cy+(j-1.5)*7,x=q.x(t.median);
+          q.g.append('line').attr('x1',q.x(t.p005)).attr('x2',q.x(t.p995)).attr('y1',y).attr('y2',y).attr('stroke',colors[i]).attr('stroke-width',2);
+          q.g.append('path').attr('d',d3.symbol().type(shapes[j]).size(38)()).attr('transform',`translate(${x},${y})`)
+            .attr('fill',colors[i]).attr('opacity',.9);
+          hit(q.g,x,y,`${c.label} ${axis.toUpperCase()} · ${stageLabels[t.name]}: median ${fmt(t.median)}, robust bounds ${fmt(t.p005)}–${fmt(t.p995)}, σ=${t.stddev.toFixed(3)} counts`);
+        });
+      });
+    }
+    function mapped(value,p,axis) {
+      const lo=p[axis+'_min'],hi=p[axis+'_max'],center=p[axis+'_center'],dz=p[axis+'_deadzone'];
+      let v=value<center-dz?-(center-dz-value)/(center-dz-lo):value>center+dz?(value-center-dz)/(hi-center-dz):0;
+      return Math.max(-1,Math.min(1,v))*(p['invert_'+axis]?-100:100);
+    }
+    function output(axis) {
+      const q=setup(`output-${axis}`,310,extent([-100,0,100],.06),labels,'Mapped output (%)','Controller',true);
+      for(const v of [-100,0,100])q.g.append('line').attr('class',v===0?'reference':'grid').attr('x1',q.x(v)).attr('x2',q.x(v)).attr('y1',q.m.top).attr('y2',q.h-q.m.bottom);
+      data.controllers.forEach((c,i)=>{
+        const a=c.axes[axis],p=profile(i),cy=q.y(labels[i]);
+        for(const [stage,value] of Object.entries(a.holds)) {
+          const v=mapped(value,p,axis),y=cy-6;
+          q.g.append('circle').attr('cx',q.x(v)).attr('cy',y).attr('r',5).attr('fill',colors[i]);
+          q.g.append('text').attr('x',q.x(v)).attr('y',y+22).attr('text-anchor',v<0?'start':'end').text(`${v.toFixed(1)}%`);
+          hit(q.g,q.x(v),y,`${c.label} ${stage}: ${v.toFixed(1)}% from held raw value ${fmt(value)}. Prediction, not a live Windows reading.`);
+        }
+      });
+    }
+    function hold(axis) {
+      const col=axis==='x'?1:2,c=data.controllers[state.controller],rows=c.traces[state.hold];
+      const median=d3.median(rows,r=>r[col]);
+      const points=rows.map(r=>({x:r[0],y:r[col]-median}));
+      const all=data.controllers.flatMap(d=>{const trace=d.traces[state.hold],m=d3.median(trace,r=>r[col]);return trace.map(r=>({x:r[0],y:r[col]-m}));});
+      const q=setup(`hold-${axis}`,220,extent(all.map(p=>p.x),.02),extent(all.map(p=>p.y),.1),'Hold time (seconds)',`${axis.toUpperCase()} Δ (ADC counts)`);
+      q.g.append('line').attr('class','reference').attr('x1',q.x.domain()[0]===undefined?0:q.x(q.x.domain()[0])).attr('x2',q.x(q.x.domain()[1])).attr('y1',q.y(0)).attr('y2',q.y(0));
+      q.g.append('path').datum(points).attr('fill','none').attr('stroke',colors[state.controller]).attr('stroke-width',1.5)
+        .attr('d',d3.line().x(d=>q.x(d.x)).y(d=>q.y(d.y)));
+      const guide=q.g.append('line').attr('class','reference').attr('data-chart-hover-guide','').attr('y1',q.m.top).attr('y2',q.h-q.m.bottom).attr('visibility','hidden');
+      const marker=q.g.append('circle').attr('r',4).attr('fill',colors[state.controller]).attr('data-chart-hover-marker','').attr('visibility','hidden');
+      function detail(e){
+        const [mx]=d3.pointer(e,q.svg.node()),t=q.x.invert(mx);const j=d3.bisector(d=>d.x).center(points,t);
+        const p=points[j];guide.attr('x1',mx).attr('x2',mx).attr('visibility','visible');
+        marker.attr('cx',q.x(p.x)).attr('cy',q.y(p.y)).attr('visibility','visible');
+        showTip(e,`${c.label}, held ${state.hold}: t=${p.x.toFixed(2)}s, ${axis.toUpperCase()}=${fmt(p.y+median)}, Δ=${fmt(p.y)} ADC counts`);
+      }
+      q.svg.append('rect').attr('x',q.m.left).attr('y',q.m.top).attr('width',q.w-q.m.left-q.m.right).attr('height',q.h-q.m.top-q.m.bottom)
+        .attr('fill','transparent').attr('data-chart-hit','').on('pointermove',detail).on('click',detail)
+        .on('pointerleave',()=>{hideTip();guide.attr('visibility','hidden');marker.attr('visibility','hidden');});
+    }
+    function perimeter() {
+      const c=data.controllers[state.controller],rows=c.traces.perimeter,all=data.controllers.flatMap(d=>d.traces.perimeter);
+      const q=setup('perimeter',300,extent(all.map(r=>r[1])),extent(all.map(r=>r[2])),'X (ADC counts)','Y (ADC counts)');
+      q.g.append('path').datum(rows).attr('d',d3.line().x(r=>q.x(r[1])).y(r=>q.y(r[2]))).attr('fill','none')
+        .attr('stroke',colors[state.controller]).attr('stroke-width',1.5).attr('opacity',.65);
+      const cx=c.axes.x.center,cy=c.axes.y.center;
+      q.g.append('circle').attr('cx',q.x(cx)).attr('cy',q.y(cy)).attr('r',5).attr('fill',colors[state.controller]);
+      const held=['left','right','up','down'];
+      held.forEach(stage=>{
+        const trace=c.traces[stage],x=d3.median(trace,r=>r[1]),y=d3.median(trace,r=>r[2]);
+        q.g.append('path').attr('d',d3.symbol().type(d3.symbolDiamond).size(55)()).attr('transform',`translate(${q.x(x)},${q.y(y)})`)
+          .attr('fill',colors[state.controller]);
+        q.g.append('text').attr('x',q.x(x)+(stage==='right'?-8:8)).attr('y',q.y(y)-10)
+          .attr('text-anchor',stage==='right'?'end':'start').text(stage);
+        hit(q.g,q.x(x),q.y(y),`${c.label} ${stage} hold median: X=${fmt(x)}, Y=${fmt(y)} ADC counts`);
+      });
+      hit(q.g,q.x(cx),q.y(cy),`${c.label} average center: X=${fmt(cx)}, Y=${fmt(cy)}`);
+    }
+    function fitLabels() {
+      root.querySelectorAll('svg').forEach(svg=>{
+        const w=svg.viewBox.baseVal.width;
+        svg.querySelectorAll('.tick text').forEach(t=>{
+          const b=t.getBoundingClientRect(),s=svg.getBoundingClientRect();
+          if(b.right>s.right-2)t.setAttribute('text-anchor','end');
+          if(b.left<s.left+2 && t.parentNode.parentNode.getAttribute('transform')?.startsWith('translate(0,'))t.setAttribute('text-anchor','start');
+        });
+      });
+    }
+    function render() {
+      if(!window.d3){root.querySelector('#vectrex-profile-values').textContent='Chart library unavailable.';return;}
+      hideTip();
+      const p=profile(0);
+      root.querySelector('#vectrex-profile-values').textContent=state.profile==='individual'?'Per-controller endpoints, average resting centers and return-based dead zones':
+        `X: ${p.x_min} / ${p.x_center} / ${p.x_max} · ±${p.x_deadzone}  |  Y: ${p.y_min} / ${p.y_center} / ${p.y_max} · ±${p.y_deadzone}  |  Proposed profiles do not change the adapter`;
+      const c=data.controllers[state.controller],trace=c.traces[state.hold];
+      root.querySelector('#vectrex-hold-values').textContent=`${c.label} · ${state.hold} held: X ${d3.min(trace,r=>r[1])}–${d3.max(trace,r=>r[1])}; Y ${d3.min(trace,r=>r[2])}–${d3.max(trace,r=>r[2])} ADC counts`;
+      for(const axis of ['x','y']){range(axis);centers(axis);output(axis);hold(axis);}perimeter();requestAnimationFrame(fitLabels);
+    }
+    for(const control of [profileControl,controllerControl,holdControl])control.addEventListener('change',()=>{
+      state={profile:profileControl.value,controller:Number(controllerControl.value),hold:holdControl.value};render();save();
+    });
+    window.addEventListener('openai:set_globals',event=>{applyState(event.detail?.globals?.widgetState?.privateContent);render();});
+    let resizeTimer;new ResizeObserver(()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(render,70);}).observe(root);
+    render();
+  })();
+  </script>
+</div>

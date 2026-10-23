@@ -1,0 +1,14 @@
+[
+  {
+    "key": "HKCU:\\System\\CurrentControlSet\\Control\\MediaProperties\\PrivateProperties\\DirectInput\\VID_2341&PID_8037\\Calibration\\0\\Type\\Axes\\0",
+    "name": "Calibration",
+    "type": "Binary",
+    "base64": "06D//wAAAABeYAAA"
+  },
+  {
+    "key": "HKCU:\\System\\CurrentControlSet\\Control\\MediaProperties\\PrivateProperties\\DirectInput\\VID_2341&PID_8037\\Calibration\\0\\Type\\Axes\\1",
+    "name": "Calibration",
+    "type": "Binary",
+    "base64": "AaD//4X8//8lXwAA"
+  }
+]

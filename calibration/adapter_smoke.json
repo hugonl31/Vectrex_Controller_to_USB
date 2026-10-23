@@ -1,0 +1,18 @@
+{
+  "identity": "INFO,VECTREX,1,RAW,UNCALIBRATED",
+  "samples": 277,
+  "x_range": [
+    37,
+    55
+  ],
+  "y_range": [
+    42,
+    55
+  ],
+  "button_masks": [
+    0
+  ],
+  "controller_connected": false,
+  "note": "Disconnected inputs float; this is not controller calibration.",
+  "utc": "2026-10-11T12:44:21.720608+00:00"
+}

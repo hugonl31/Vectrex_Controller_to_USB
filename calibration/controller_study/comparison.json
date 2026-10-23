@@ -1,0 +1,505 @@
+{
+  "method": "Equal-weight mean of 3 stock controllers; each center is mean of 4 resting-trial medians.",
+  "endpoints_method": "Per-controller 0.5th/99.5th percentile of axis holds plus perimeter capture.",
+  "deadzone_method": "Worst measured stock stationary 0.5/99.5 percentile offset from common center, plus 2 ADC counts.",
+  "stock_defaults": {
+    "filter": 0,
+    "x_min": 171,
+    "x_max": 837,
+    "x_center": 513,
+    "x_deadzone": 21,
+    "invert_x": 0,
+    "y_min": 169,
+    "y_max": 838,
+    "y_center": 524,
+    "y_deadzone": 20,
+    "invert_y": 1
+  },
+  "unrounded_averages": {
+    "x_min": 171.33333333333334,
+    "x_max": 836.6666666666666,
+    "x_center": 513.3333333333334,
+    "y_min": 168.66666666666666,
+    "y_max": 837.6666666666666,
+    "y_center": 523.5833333333334
+  },
+  "aftermarket_included_in_stock_defaults": false,
+  "limitations": [
+    "Three controllers on one adapter are a small sample, not a population guarantee.",
+    "Stock #3 X holds differ from perimeter extremes and have higher noise.",
+    "Averaged endpoints can clamp early or fall short of full range on individual controllers.",
+    "Short captures measure stationary noise and return repeatability, not long-term thermal drift."
+  ],
+  "controllers": [
+    {
+      "label": "stock_1",
+      "kind": "stock",
+      "axes": {
+        "x": {
+          "min": 169,
+          "center": 527.25,
+          "max": 846,
+          "raw_extrema": [
+            169,
+            846
+          ],
+          "center_trial_medians": [
+            523.0,
+            528,
+            526,
+            532
+          ],
+          "return_median_span": 9.0,
+          "max_stationary_stddev": 0.3432820117998352,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            523.0,
+            532.0
+          ],
+          "held_endpoint_medians": {
+            "left": 169.0,
+            "right": 846.0
+          },
+          "held_endpoint_stddev": {
+            "left": 0.40111506419034887,
+            "right": 0.10520800134232601
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "left": -100,
+            "right": 100
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            -100,
+            100
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        },
+        "y": {
+          "min": 177,
+          "center": 527.0,
+          "max": 838,
+          "raw_extrema": [
+            176,
+            838
+          ],
+          "center_trial_medians": [
+            528.0,
+            526,
+            527,
+            527
+          ],
+          "return_median_span": 2.0,
+          "max_stationary_stddev": 0.43285094896684534,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            526.0,
+            528.0
+          ],
+          "held_endpoint_medians": {
+            "up": 838.0,
+            "down": 178.0
+          },
+          "held_endpoint_stddev": {
+            "up": 0.0,
+            "down": 0.0
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "up": -100,
+            "down": 97.31343283582089
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            97.61194029850746,
+            -100
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        }
+      }
+    },
+    {
+      "label": "stock_2",
+      "kind": "stock",
+      "axes": {
+        "x": {
+          "min": 157,
+          "center": 501.75,
+          "max": 858,
+          "raw_extrema": [
+            157,
+            859
+          ],
+          "center_trial_medians": [
+            503.0,
+            501,
+            502,
+            501
+          ],
+          "return_median_span": 2.0,
+          "max_stationary_stddev": 0.0,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            501.0,
+            503.0
+          ],
+          "held_endpoint_medians": {
+            "left": 158,
+            "right": 858
+          },
+          "held_endpoint_stddev": {
+            "left": 0.08590498147428507,
+            "right": 0.0
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "left": -100,
+            "right": 100
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            -100,
+            100
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        },
+        "y": {
+          "min": 157,
+          "center": 529.25,
+          "max": 847,
+          "raw_extrema": [
+            157,
+            847
+          ],
+          "center_trial_medians": [
+            527.0,
+            530,
+            530,
+            530
+          ],
+          "return_median_span": 3.0,
+          "max_stationary_stddev": 0.04724544089920107,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            527.0,
+            530.0
+          ],
+          "held_endpoint_medians": {
+            "up": 847.0,
+            "down": 159.0
+          },
+          "held_endpoint_stddev": {
+            "up": 0.0,
+            "down": 0.3670208129273508
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "up": -100,
+            "down": 100
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            100,
+            -100
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        }
+      }
+    },
+    {
+      "label": "stock_3",
+      "kind": "stock",
+      "axes": {
+        "x": {
+          "min": 188,
+          "center": 511,
+          "max": 806,
+          "raw_extrema": [
+            183,
+            809
+          ],
+          "center_trial_medians": [
+            511,
+            510,
+            512,
+            511
+          ],
+          "return_median_span": 2,
+          "max_stationary_stddev": 0.6065027465311796,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            510.0,
+            513.0
+          ],
+          "held_endpoint_medians": {
+            "left": 272,
+            "right": 760
+          },
+          "held_endpoint_stddev": {
+            "left": 6.085160874589965,
+            "right": 6.642198691495288
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "left": -68.53582554517133,
+            "right": 74.58745874587459
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            -94.70404984423676,
+            89.76897689768977
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        },
+        "y": {
+          "min": 172,
+          "center": 514.5,
+          "max": 828,
+          "raw_extrema": [
+            172,
+            828
+          ],
+          "center_trial_medians": [
+            506,
+            518,
+            516,
+            518
+          ],
+          "return_median_span": 12,
+          "max_stationary_stddev": 0.39418065193382185,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            506.0,
+            519.0
+          ],
+          "held_endpoint_medians": {
+            "up": 828,
+            "down": 172
+          },
+          "held_endpoint_stddev": {
+            "up": 0.0,
+            "down": 0.0
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "up": -96.5986394557823,
+            "down": 99.1044776119403
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            99.1044776119403,
+            -96.5986394557823
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        }
+      }
+    },
+    {
+      "label": "aftermarket_1",
+      "kind": "aftermarket",
+      "axes": {
+        "x": {
+          "min": 252,
+          "center": 518.5,
+          "max": 777,
+          "raw_extrema": [
+            252,
+            778
+          ],
+          "center_trial_medians": [
+            518,
+            520,
+            518,
+            518
+          ],
+          "return_median_span": 2,
+          "max_stationary_stddev": 0.0743899384104664,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            517.0,
+            520.0
+          ],
+          "held_endpoint_medians": {
+            "left": 252.0,
+            "right": 777.0
+          },
+          "held_endpoint_stddev": {
+            "left": 0.19839380653818575,
+            "right": 0.06097065163570221
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "left": -74.76635514018692,
+            "right": 80.19801980198021
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            -74.76635514018692,
+            80.19801980198021
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        },
+        "y": {
+          "min": 243,
+          "center": 513.75,
+          "max": 778,
+          "raw_extrema": [
+            243,
+            778
+          ],
+          "center_trial_medians": [
+            509,
+            515,
+            516,
+            515
+          ],
+          "return_median_span": 7,
+          "max_stationary_stddev": 0.3699176712501199,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            509.0,
+            516.0
+          ],
+          "held_endpoint_medians": {
+            "up": 775,
+            "down": 244.0
+          },
+          "held_endpoint_stddev": {
+            "up": 0.08590498147428507,
+            "down": 0.0
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "up": -78.57142857142857,
+            "down": 77.61194029850746
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            77.91044776119404,
+            -79.59183673469387
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        }
+      }
+    },
+    {
+      "label": "aftermarket_2",
+      "kind": "aftermarket",
+      "axes": {
+        "x": {
+          "min": 162,
+          "center": 502.75,
+          "max": 863,
+          "raw_extrema": [
+            162,
+            864
+          ],
+          "center_trial_medians": [
+            493.0,
+            514,
+            500,
+            504
+          ],
+          "return_median_span": 21.0,
+          "max_stationary_stddev": 0.06659205517918064,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            493.0,
+            514.0
+          ],
+          "held_endpoint_medians": {
+            "left": 162,
+            "right": 863.0
+          },
+          "held_endpoint_stddev": {
+            "left": 0.0,
+            "right": 0.0
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "left": -100,
+            "right": 100
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            -100,
+            100
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 0,
+            "return_3": 0
+          }
+        },
+        "y": {
+          "min": 156,
+          "center": 508.75,
+          "max": 869,
+          "raw_extrema": [
+            156,
+            869
+          ],
+          "center_trial_medians": [
+            513.0,
+            509,
+            497,
+            516
+          ],
+          "return_median_span": 19,
+          "max_stationary_stddev": 0.08804240366863003,
+          "max_stationary_first_last_drift": 0.0,
+          "center_bounds": [
+            497.0,
+            516.0
+          ],
+          "held_endpoint_medians": {
+            "up": 869.0,
+            "down": 156.0
+          },
+          "held_endpoint_stddev": {
+            "up": 0.0,
+            "down": 0.0
+          },
+          "held_endpoints_percent_with_stock_defaults": {
+            "up": -100,
+            "down": 100
+          },
+          "robust_endpoints_percent_with_stock_defaults": [
+            100,
+            -100
+          ],
+          "resting_trial_percent_with_stock_defaults": {
+            "center": 0,
+            "return_1": 0,
+            "return_2": 2.0895522388059704,
+            "return_3": 0
+          }
+        }
+      }
+    }
+  ]
+}
