@@ -5,7 +5,9 @@ into a plain USB game controller with two analog axes and four buttons. No
 drivers, no software on the PC: Windows, Linux and macOS see a standard
 HID gamepad, so it works in emulators and in any game that accepts a joystick.
 
-![Wiring: Vectrex DB9 plug to Pro Micro](DB9_TO_ATMega32U4.png)
+<a href="DB9_TO_ATMega32U4.png"><img src="DB9_TO_ATMega32U4.png" alt="Wiring: Vectrex DB9 plug to Pro Micro" width="400"></a>
+
+*Click the picture for the full-size wiring diagram.*
 
 ## What you need
 
