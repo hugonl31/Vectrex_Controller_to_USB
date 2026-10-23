@@ -1,16 +1,14 @@
 .pio/
 .venv/
 __pycache__/
-pitrex-test/upstream/
-pitrex-test/range-test/build/
-pitrex-test/range-test/build7/
-pitrex-test/range-test/*.img
-pitrex-test/build-*.log
 portable/cache/
 dist/
 
 # not part of the adapter project / too large for GitHub
-Robot_Arena/
 portable/*.MOV
 portable/*.mp4
-pitrex-test/sd-restoration-backup/
+
+# other projects, not part of this adapter
+Robot_Arena/
+pitrex-test/
+cartridge-test/

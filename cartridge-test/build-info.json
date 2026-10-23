@@ -1,9 +1,0 @@
-{
-  "chip": "W27C512",
-  "bytes": 65536,
-  "banks": "Two identical 32768-byte banks",
-  "sha256": "02e08d6f7442e58753f57d42b2cf56313a55b869ae90ea5fd4f0d028ba7c1577",
-  "emulator_validation": "passed",
-  "physical_validation": "passed: user reports stock #2 and aftermarket #1 both reach X/Y -128 to +127 on real cartridge, 2026-10-11",
-  "source": "pitrex-test/rom/joytest.asm, REAL_CART=1"
-}
